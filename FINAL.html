@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeData - Gestión de Datos Confidenciales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #0B2D48;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+        }
+        .btn-primary {
+            background-color: #20639B;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0B2D48;
+        }
+        .btn-secondary {
+            background-color: #3CAEA3;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #2e8a80;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .alert {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .alert-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+        .alert-success {
+            background-color: #d1fae5;
+            color: #059669;
+            border: 1px solid #10b981;
+        }
+        .user-item, .log-item, .financial-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .user-item:last-child, .log-item:last-child, .financial-item:last-child {
+            border-bottom: none;
+        }
+        .log-item span {
+            flex: 1;
+        }
+        .log-item .timestamp {
+            font-size: 0.75rem;
+            color: #64748b;
+            min-width: 150px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center p-4">
+
+    <div id="login-screen" class="w-full max-w-md card">
+        <h1 class="text-3xl font-bold text-center mb-6 text-[#0B2D48]">Acceso a SafeData</h1>
+
+        <div id="login-type-toggle" class="flex justify-center mb-6">
+            <button id="admin-login-btn" class="btn-primary mr-2">Acceso Administrativo</button>
+            <button id="client-login-btn" class="btn-secondary">Acceso Cliente</button>
+        </div>
+
+        <div id="login-form">
+            <div id="login-message" class="alert hidden"></div>
+            <input type="text" id="username" class="input-field" placeholder="Usuario o Email">
+            <input type="password" id="password" class="input-field" placeholder="Contraseña">
+            <div id="mfa-section" class="hidden">
+                <input type="text" id="mfa-code" class="input-field mt-2" placeholder="Código MFA (ej. 123456)">
+            </div>
+            <button id="login-submit-btn" class="btn-primary w-full mt-4">Iniciar Sesión</button>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="w-full max-w-4xl card hidden mt-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-[#0B2D48]">Bienvenido a SafeData, <span id="dashboard-username"></span></h1>
+            <button id="logout-btn" class="btn-secondary">Cerrar Sesión</button>
+        </div>
+
+        <div id="admin-dashboard-content" class="hidden">
+            <h2 class="text-2xl font-semibold text-[#ED553B] mb-4">Panel Administrativo - Datos Confidenciales</h2>
+            <p class="text-gray-700 mb-4">Aquí se gestionan los datos sensibles de los clientes. El acceso está protegido por MFA y políticas de privilegio mínimo.</p>
+            <div class="bg-red-50 p-4 rounded-lg border border-red-200 mb-4">
+                <h3 class="font-bold text-red-700">Información Financiera del Cliente (Cifrada en Reposo)</h3>
+                <ul class="list-disc list-inside text-red-600 mt-2">
+                    <li>Cliente A: Saldo $1,234,567.89 (Cifrado: `XYZ123...`)</li>
+                    <li>Cliente B: Inversiones $500,000.00 (Cifrado: `ABC789...`)</li>
+                    <li>Cliente C: Historial de Crédito (Cifrado: `DEF456...`)</li>
+                </ul>
+            </div>
+            <div class="flex flex-wrap gap-4 mt-4">
+                <button id="manage-users-btn" class="btn-primary">Gestionar Usuarios</button>
+                <button id="view-audit-logs-btn" class="btn-primary">Ver Logs de Auditoría</button>
+                <button id="access-sensitive-data-btn" class="btn-primary">Acceder a Datos Sensibles</button>
+                <button id="enter-financial-data-btn" class="btn-primary">Ingresar Datos Financieros</button>
+            </div>
+
+            <!-- Sección de Gestión de Usuarios -->
+            <div id="user-management-section" class="hidden mt-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-semibold text-[#0B2D48] mb-4">Gestión de Usuarios</h2>
+                <div id="user-management-message" class="alert hidden"></div>
+
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+                    <h3 class="font-bold text-[#20639B] mb-2">Usuarios Actuales</h3>
+                    <div id="current-users-list" class="max-h-60 overflow-y-auto">
+                        <!-- Lista de usuarios se renderizará aquí -->
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                    <h3 class="font-bold text-[#0B2D48] mb-2">Añadir Nuevo Usuario</h3>
+                    <input type="text" id="new-username" class="input-field" placeholder="Nuevo Usuario">
+                    <input type="password" id="new-password" class="input-field" placeholder="Contraseña">
+                    <select id="new-user-role" class="input-field">
+                        <option value="client">Cliente</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="new-user-mfa" class="mr-2">
+                        <label for="new-user-mfa" class="text-gray-700">Requerir MFA</label>
+                    </div>
+                    <input type="text" id="new-user-mfa-secret" class="input-field hidden" placeholder="Código MFA Secreto (ej. 123456)">
+                    <button id="add-user-btn" class="btn-primary w-full">Añadir Usuario</button>
+                </div>
+            </div>
+
+            <!-- Sección de Logs de Auditoría -->
+            <div id="audit-logs-section" class="hidden mt-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-semibold text-[#0B2D48] mb-4">Logs de Auditoría</h2>
+                <div id="audit-logs-message" class="alert hidden"></div>
+
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+                    <h3 class="font-bold text-[#20639B] mb-2">Eventos Recientes</h3>
+                    <div id="audit-logs-list" class="max-h-60 overflow-y-auto">
+                        <!-- Los logs se renderizarán aquí -->
+                    </div>
+                </div>
+                <button id="clear-logs-btn" class="btn-secondary w-full">Limpiar Logs</button>
+            </div>
+
+            <!-- Sección de Acceso a Datos Sensibles -->
+            <div id="sensitive-data-section" class="hidden mt-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-semibold text-[#0B2D48] mb-4">Acceso a Bases de Datos Internas (Datos Sensibles)</h2>
+                <div id="sensitive-data-message" class="alert hidden"></div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-4">
+                    <h3 class="font-bold text-[#F6D55C] mb-2">Simulación de Conexión Segura</h3>
+                    <p class="text-gray-700 text-sm mb-2">En un entorno real, esta conexión se realizaría a través de una red interna segura (VLAN), con credenciales obtenidas de un sistema de gestión de secretos (ej. HashiCorp Vault) y cifrado TLS/SSL de extremo a extremo.</p>
+                    <div id="connection-status" class="text-blue-700 font-semibold mb-2">Conectando...</div>
+                    <div id="sensitive-data-content" class="hidden">
+                        <h4 class="font-bold text-[#ED553B] mb-2">Datos Confidenciales del Cliente (Desencriptados para Visualización)</h4>
+                        <ul class="list-disc list-inside text-red-600">
+                            <li>Cliente D: Número de Tarjeta: `**** **** **** 1234` (Tokenizado)</li>
+                            <li>Cliente E: Historial Médico: `[Detalles de salud confidenciales]`</li>
+                            <li>Cliente F: Dirección de Residencia: `Calle Falsa 123, Ciudad X`</li>
+                        </ul>
+                        <p class="text-gray-700 text-sm mt-2">Estos datos estarían cifrados en reposo y solo se desencriptarían para usuarios autorizados con privilegios específicos.</p>
+                    </div>
+                </div>
+                <button id="close-sensitive-data-btn" class="btn-secondary w-full">Cerrar Acceso a Datos Sensibles</button>
+            </div>
+
+            <!-- Sección: Ingresar Información Financiera -->
+            <div id="financial-data-entry-section" class="hidden mt-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-semibold text-[#0B2D48] mb-4">Ingresar Información Financiera de Clientes</h2>
+                <div id="financial-data-message" class="alert hidden"></div>
+
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
+                    <h3 class="font-bold text-[#3CAEA3] mb-2">Registrar Nuevo Dato Financiero</h3>
+                    <input type="text" id="financial-client-name" class="input-field" placeholder="Nombre del Cliente">
+                    <input type="number" id="financial-amount" class="input-field" placeholder="Monto (ej. 1500.75)" step="0.01">
+                    <input type="text" id="financial-account-number" class="input-field" placeholder="Número de Cuenta (Tokenizado: ****1234)">
+                    <button id="save-financial-data-btn" class="btn-primary w-full">Guardar Dato Financiero</button>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+                    <h3 class="font-bold text-[#20639B] mb-2">Registros Financieros Guardados</h3>
+                    <div id="financial-records-list" class="max-h-60 overflow-y-auto">
+                        <!-- Los registros financieros se renderizarán aquí -->
+                    </div>
+                </div>
+                <button id="close-financial-data-entry-btn" class="btn-secondary w-full">Cerrar Ingreso de Datos Financieros</button>
+            </div>
+
+        </div>
+
+        <div id="client-dashboard-content" class="hidden">
+            <h2 class="text-2xl font-semibold text-[#3CAEA3] mb-4">Panel de Cliente - Información Básica</h2>
+            <p class="text-gray-700 mb-4">Acceso a la información general de su cuenta. Los datos sensibles están protegidos y no son directamente accesibles aquí.</p>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
+                <h3 class="font-bold text-green-700">Resumen de Cuenta</h3>
+                <ul class="list-disc list-inside text-green-600 mt-2">
+                    <li>Nombre: Juan Pérez</li>
+                    <li>Email: juan.perez@ejemplo.com</li>
+                    <li>Último Acceso: 2025-06-30 10:30 AM</li>
+                </ul>
+            </div>
+            <button id="view-profile-details-btn" class="btn-secondary">Ver Detalles del Perfil</button>
+
+            <!-- Nueva Sección: Detalles del Perfil del Cliente -->
+            <div id="client-profile-details-section" class="hidden mt-8 pt-6 border-t border-gray-200">
+                <h2 class="text-2xl font-semibold text-[#0B2D48] mb-4">Detalles de su Perfil</h2>
+                <div id="client-profile-message" class="alert hidden"></div>
+
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
+                    <h3 class="font-bold text-[#20639B] mb-2">Información Personal</h3>
+                    <ul class="list-disc list-inside text-gray-700">
+                        <li><strong>Nombre Completo:</strong> Juan Carlos Pérez García</li>
+                        <li><strong>Fecha de Nacimiento:</strong> 15/05/1990</li>
+                        <li><strong>Dirección:</strong> Calle Falsa 123, Ciudad Ejemplo, País</li>
+                        <li><strong>Teléfono:</strong> +123 456 7890</li>
+                        <li><strong>Email:</strong> juan.perez@ejemplo.com</li>
+                    </ul>
+                    <p class="text-gray-700 text-sm mt-4">Esta información es personal y está protegida. Para cambios, contacte a soporte.</p>
+                </div>
+                <button id="close-profile-details-btn" class="btn-secondary w-full">Cerrar Detalles del Perfil</button>
+            </div>
+
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <h2 class="text-2xl font-bold text-[#0B2D48] mb-4 text-center">Seguridad en Acción: Conceptos Clave</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🔒 HTTPS (SSL/TLS)</h3>
+                    <p class="text-gray-600 text-sm">Toda la comunicación entre su navegador y SafeData está cifrada, protegiendo sus datos en tránsito.</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🔑 Hashing de Contraseñas</h3>
+                    <p class="text-gray-600 text-sm">Sus contraseñas nunca se almacenan en texto plano. Se guardan como hashes seguros (ej. Bcrypt).</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🔐 Autenticación Multifactor (MFA)</h3>
+                    <p class="text-gray-600 text-sm">Para acceso administrativo, se requiere un segundo factor de verificación, como un código de app autenticadora.</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🌐 Cortafuegos (Firewalls)</h3>
+                    <p class="text-gray-600 text-sm">Barreras de red y de host controlan estrictamente quién puede acceder a los servidores de SafeData.</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🗄️ Cifrado de Datos en Reposo</h3>
+                    <p class="text-gray-600 text-sm">Los datos confidenciales de clientes en la base de datos están cifrados para protegerlos incluso si el almacenamiento es comprometido.</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-[#20639B] mb-2">🔄 Gestión de Parches</h3>
+                    <p class="text-gray-600 text-sm">Mantenemos todos los sistemas y software actualizados para corregir vulnerabilidades conocidas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loginScreen = document.getElementById('login-screen');
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const clientLoginBtn = document.getElementById('client-login-btn');
+        const loginMessage = document.getElementById('login-message');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const mfaSection = document.getElementById('mfa-section');
+        const mfaCodeInput = document.getElementById('mfa-code');
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const dashboardUsername = document.getElementById('dashboard-username');
+        const adminDashboardContent = document.getElementById('admin-dashboard-content');
+        const clientDashboardContent = document.getElementById('client-dashboard-content');
+
+        // Elements for user management
+        const manageUsersBtn = document.getElementById('manage-users-btn');
+        const userManagementSection = document.getElementById('user-management-section');
+        const userManagementMessage = document.getElementById('user-management-message');
+        const currentUsersList = document.getElementById('current-users-list');
+        const newUsernameInput = document.getElementById('new-username');
+        const newPasswordInput = document.getElementById('new-password');
+        const newUserRoleSelect = document.getElementById('new-user-role');
+        const newUserMfaCheckbox = document.getElementById('new-user-mfa');
+        const newUserMfaSecretInput = document.getElementById('new-user-mfa-secret');
+        const addUserBtn = document.getElementById('add-user-btn');
+
+        // Elements for audit logs
+        const viewAuditLogsBtn = document.getElementById('view-audit-logs-btn');
+        const auditLogsSection = document.getElementById('audit-logs-section');
+        const auditLogsMessage = document.getElementById('audit-logs-message');
+        const auditLogsList = document.getElementById('audit-logs-list');
+        const clearLogsBtn = document.getElementById('clear-logs-btn');
+
+        // Elements for sensitive data access
+        const accessSensitiveDataBtn = document.getElementById('access-sensitive-data-btn');
+        const sensitiveDataSection = document.getElementById('sensitive-data-section');
+        const sensitiveDataMessage = document.getElementById('sensitive-data-message');
+        const connectionStatus = document.getElementById('connection-status');
+        const sensitiveDataContent = document.getElementById('sensitive-data-content');
+        const closeSensitiveDataBtn = document.getElementById('close-sensitive-data-btn');
+
+        // Elements for financial data entry
+        const enterFinancialDataBtn = document.getElementById('enter-financial-data-btn');
+        const financialDataEntrySection = document.getElementById('financial-data-entry-section');
+        const financialDataMessage = document.getElementById('financial-data-message');
+        const financialClientNameInput = document.getElementById('financial-client-name');
+        const financialAmountInput = document.getElementById('financial-amount');
+        const financialAccountNumberInput = document.getElementById('financial-account-number');
+        const saveFinancialDataBtn = document.getElementById('save-financial-data-btn');
+        const financialRecordsList = document.getElementById('financial-records-list');
+        const closeFinancialDataEntryBtn = document.getElementById('close-financial-data-entry-btn');
+
+        // Elements for client profile details
+        const viewProfileDetailsBtn = document.getElementById('view-profile-details-btn');
+        const clientProfileDetailsSection = document.getElementById('client-profile-details-section');
+        const clientProfileMessage = document.getElementById('client-profile-message');
+        const closeProfileDetailsBtn = document.getElementById('close-profile-details-btn');
+
+
+        let currentLoginType = 'admin';
+        let isAuthenticated = false;
+        let requiresMFA = false;
+        let currentUserRole = '';
+
+        // Simulated User Data
+        let usersData = [
+            {
+                username: 'admin',
+                password: 'AdminPassword123!',
+                role: 'admin',
+                mfa_required: true,
+                mfa_secret: '123456'
+            },
+            {
+                username: 'cliente@ejemplo.com',
+                password: 'ClientPassword123',
+                role: 'client',
+                mfa_required: false
+            }
+        ];
+
+        // Simulated Audit Logs
+        let auditLogs = [
+            { timestamp: new Date().toLocaleString(), event: 'Inicio de sesión exitoso: admin', type: 'success' },
+            { timestamp: new Date(Date.now() - 60000).toLocaleString(), event: 'Intento de login fallido: usuario_desconocido', type: 'error' },
+            { timestamp: new Date(Date.now() - 120000).toLocaleString(), event: 'Usuario cliente@ejemplo.com accedió a panel', type: 'info' }
+        ];
+
+        // Simulated Financial Records
+        let financialRecords = [
+            { clientName: 'Cliente Original', amount: 1000.00, accountNumber: '****5678' }
+        ];
+
+        // --- Helper Functions ---
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+            element.classList.remove('hidden');
+        }
+
+        function hideMessage(element) {
+            element.classList.add('hidden');
+        }
+
+        function setLoginType(type) {
+            currentLoginType = type;
+            if (type === 'admin') {
+                adminLoginBtn.classList.add('btn-primary');
+                adminLoginBtn.classList.remove('btn-secondary');
+                clientLoginBtn.classList.add('btn-secondary');
+                clientLoginBtn.classList.remove('btn-primary');
+                usernameInput.placeholder = 'Usuario (admin)';
+                passwordInput.placeholder = 'Contraseña (AdminPassword123!)';
+            } else {
+                clientLoginBtn.classList.add('btn-primary');
+                clientLoginBtn.classList.remove('btn-secondary');
+                adminLoginBtn.classList.add('btn-secondary');
+                adminLoginBtn.classList.remove('btn-primary');
+                usernameInput.placeholder = 'Email (cliente@ejemplo.com)';
+                passwordInput.placeholder = 'Contraseña (ClientPassword123)';
+            }
+            usernameInput.value = '';
+            passwordInput.value = '';
+            mfaCodeInput.value = '';
+            mfaSection.classList.add('hidden');
+            hideMessage(loginMessage);
+            requiresMFA = false;
+        }
+
+        function showDashboard(role, username) {
+            loginScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+            dashboardUsername.textContent = username;
+            currentUserRole = role;
+
+            if (role === 'admin') {
+                adminDashboardContent.classList.remove('hidden');
+                clientDashboardContent.classList.add('hidden');
+            } else {
+                clientDashboardContent.classList.remove('hidden');
+                adminDashboardContent.classList.add('hidden');
+            }
+            // Hide all sub-sections on dashboard load
+            userManagementSection.classList.add('hidden');
+            auditLogsSection.classList.add('hidden');
+            sensitiveDataSection.classList.add('hidden');
+            financialDataEntrySection.classList.add('hidden');
+            clientProfileDetailsSection.classList.add('hidden'); // Hide new client section
+            console.log(`[SafeData - Log] Usuario ${username} (${role}) ha iniciado sesión.`);
+            addAuditLog(`Inicio de sesión exitoso: ${username}`, 'success');
+        }
+
+        function showLogin() {
+            loginScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+            isAuthenticated = false;
+            requiresMFA = false;
+            currentUserRole = '';
+            usernameInput.value = '';
+            passwordInput.value = '';
+            mfaCodeInput.value = '';
+            mfaSection.classList.add('hidden');
+            hideMessage(loginMessage);
+            console.log("[SafeData - Log] Sesión cerrada.");
+        }
+
+        // --- User Management Functions ---
+        function renderUserList() {
+            currentUsersList.innerHTML = '';
+            if (usersData.length === 0) {
+                currentUsersList.innerHTML = '<p class="text-gray-500">No hay usuarios registrados.</p>';
+                return;
+            }
+
+            usersData.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <span>
+                        <strong>${user.username}</strong> (${user.role})
+                        ${user.mfa_required ? '<span class="text-blue-600 text-xs">(MFA)</span>' : ''}
+                    </span>
+                    <button data-username="${user.username}" class="text-red-500 hover:text-red-700 text-sm delete-user-btn">Eliminar</button>
+                `;
+                currentUsersList.appendChild(userItem);
+            });
+
+            document.querySelectorAll('.delete-user-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const usernameToDelete = event.target.dataset.username;
+                    deleteUser(usernameToDelete);
+                });
+            });
+        }
+
+        function addUser() {
+            const username = newUsernameInput.value.trim();
+            const password = newPasswordInput.value.trim();
+            const role = newUserRoleSelect.value;
+            const mfaRequired = newUserMfaCheckbox.checked;
+            const mfaSecret = newUserMfaSecretInput.value.trim();
+
+            hideMessage(userManagementMessage);
+
+            if (!username || !password) {
+                showMessage(userManagementMessage, "Nombre de usuario y contraseña son obligatorios.", 'error');
+                return;
+            }
+
+            if (usersData.some(user => user.username === username)) {
+                showMessage(userManagementMessage, "El nombre de usuario ya existe.", 'error');
+                return;
+            }
+
+            if (mfaRequired && !mfaSecret) {
+                showMessage(userManagementMessage, "Se requiere un código MFA secreto si MFA está activado.", 'error');
+                return;
+            }
+
+            const newUser = {
+                username: username,
+                password: password,
+                role: role,
+                mfa_required: mfaRequired,
+                mfa_secret: mfaRequired ? mfaSecret : ''
+            };
+
+            usersData.push(newUser);
+            renderUserList();
+            showMessage(userManagementMessage, `Usuario '${username}' añadido con éxito.`, 'success');
+            addAuditLog(`Usuario '${username}' (${role}) añadido por ${dashboardUsername.textContent}`, 'info');
+
+            newUsernameInput.value = '';
+            newPasswordInput.value = '';
+            newUserRoleSelect.value = 'client';
+            newUserMfaCheckbox.checked = false;
+            newUserMfaSecretInput.value = '';
+            newUserMfaSecretInput.classList.add('hidden');
+            console.log(`[SafeData - Log] Nuevo usuario añadido: ${JSON.stringify(newUser)}`);
+        }
+
+        function deleteUser(username) {
+            const initialLength = usersData.length;
+            usersData = usersData.filter(user => user.username !== username);
+
+            if (usersData.length < initialLength) {
+                renderUserList();
+                showMessage(userManagementMessage, `Usuario '${username}' eliminado.`, 'success');
+                addAuditLog(`Usuario '${username}' eliminado por ${dashboardUsername.textContent}`, 'warning');
+                console.log(`[SafeData - Log] Usuario eliminado: ${username}`);
+            } else {
+                showMessage(userManagementMessage, `No se encontró el usuario '${username}'.`, 'error');
+            }
+        }
+
+        function toggleUserManagementSection() {
+            userManagementSection.classList.toggle('hidden');
+            if (!userManagementSection.classList.contains('hidden')) {
+                renderUserList();
+                hideMessage(userManagementMessage);
+                auditLogsSection.classList.add('hidden');
+                sensitiveDataSection.classList.add('hidden');
+                financialDataEntrySection.classList.add('hidden');
+            }
+        }
+
+        // --- Audit Log Functions ---
+        function addAuditLog(event, type = 'info') {
+            const timestamp = new Date().toLocaleString();
+            auditLogs.unshift({ timestamp, event, type });
+            if (!auditLogsSection.classList.contains('hidden')) {
+                renderAuditLogs();
+            }
+        }
+
+        function renderAuditLogs() {
+            auditLogsList.innerHTML = '';
+            if (auditLogs.length === 0) {
+                auditLogsList.innerHTML = '<p class="text-gray-500">No hay eventos de auditoría.</p>';
+                return;
+            }
+
+            auditLogs.forEach(log => {
+                const logItem = document.createElement('div');
+                let textColorClass = 'text-gray-800';
+                if (log.type === 'error') textColorClass = 'text-red-700';
+                else if (log.type === 'success') textColorClass = 'text-green-700';
+                else if (log.type === 'warning') textColorClass = 'text-orange-700';
+                else if (log.type === 'info') textColorClass = 'text-blue-700';
+
+                logItem.className = `log-item ${textColorClass}`;
+                logItem.innerHTML = `
+                    <span>${log.event}</span>
+                    <span class="timestamp">${log.timestamp}</span>
+                `;
+                auditLogsList.appendChild(logItem);
+            });
+        }
+
+        function clearAuditLogs() {
+            auditLogs = [];
+            renderAuditLogs();
+            showMessage(auditLogsMessage, "Logs de auditoría limpiados.", 'success');
+            console.log("[SafeData - Log] Logs de auditoría limpiados por el administrador.");
+            addAuditLog(`Logs de auditoría limpiados por ${dashboardUsername.textContent}`, 'warning');
+        }
+
+        function toggleAuditLogsSection() {
+            auditLogsSection.classList.toggle('hidden');
+            if (!auditLogsSection.classList.contains('hidden')) {
+                renderAuditLogs();
+                hideMessage(auditLogsMessage);
+                userManagementSection.classList.add('hidden');
+                sensitiveDataSection.classList.add('hidden');
+                financialDataEntrySection.classList.add('hidden');
+            }
+        }
+
+        // --- Sensitive Data Access Functions ---
+        function toggleSensitiveDataSection() {
+            sensitiveDataSection.classList.toggle('hidden');
+            if (!sensitiveDataSection.classList.contains('hidden')) {
+                // Hide other sections
+                userManagementSection.classList.add('hidden');
+                auditLogsSection.classList.add('hidden');
+                financialDataEntrySection.classList.add('hidden');
+                clientProfileDetailsSection.classList.add('hidden'); // Hide client section
+
+                // Simulate connection
+                connectionStatus.textContent = 'Conectando a la base de datos interna...';
+                sensitiveDataContent.classList.add('hidden');
+                hideMessage(sensitiveDataMessage);
+
+                console.log(`[SafeData - Log] ${dashboardUsername.textContent} intentando acceder a datos sensibles.`);
+                addAuditLog(`Intento de acceso a datos sensibles por ${dashboardUsername.textContent}`, 'info');
+
+                setTimeout(() => {
+                    connectionStatus.textContent = 'Conexión establecida. Datos recuperados.';
+                    sensitiveDataContent.classList.remove('hidden');
+                    showMessage(sensitiveDataMessage, "Acceso a datos sensibles concedido. Recuerde la importancia del privilegio mínimo y la auditoría.", 'success');
+                    console.log(`[SafeData - Log] Acceso a datos sensibles concedido a ${dashboardUsername.textContent}`);
+                    addAuditLog(`Acceso a datos sensibles concedido a ${dashboardUsername.textContent}`, 'success');
+                }, 2000); // Simulate 2-second connection time
+            } else {
+                // When closing the section
+                connectionStatus.textContent = 'Conectando...'; // Reset status
+                sensitiveDataContent.classList.add('hidden');
+                hideMessage(sensitiveDataMessage);
+                console.log(`[SafeData - Log] Acceso a datos sensibles cerrado por ${dashboardUsername.textContent}`);
+                addAuditLog(`Acceso a datos sensibles cerrado por ${dashboardUsername.textContent}`, 'info');
+            }
+        }
+
+        // --- Financial Data Entry Functions ---
+        function renderFinancialRecords() {
+            financialRecordsList.innerHTML = '';
+            if (financialRecords.length === 0) {
+                financialRecordsList.innerHTML = '<p class="text-gray-500">No hay registros financieros.</p>';
+                return;
+            }
+            financialRecords.forEach(record => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'financial-item text-gray-700';
+                recordItem.innerHTML = `
+                    <span>Cliente: <strong>${record.clientName}</strong></span>
+                    <span>Monto: <strong>$${record.amount.toFixed(2)}</strong></span>
+                    <span>Cuenta: <strong>${record.accountNumber}</strong></span>
+                `;
+                financialRecordsList.appendChild(recordItem);
+            });
+        }
+
+        function addFinancialRecord() {
+            const clientName = financialClientNameInput.value.trim();
+            const amount = parseFloat(financialAmountInput.value.trim());
+            const accountNumber = financialAccountNumberInput.value.trim();
+
+            hideMessage(financialDataMessage);
+
+            if (!clientName || isNaN(amount) || !accountNumber) {
+                showMessage(financialDataMessage, "Todos los campos son obligatorios y el monto debe ser un número.", 'error');
+                return;
+            }
+            if (amount <= 0) {
+                showMessage(financialDataMessage, "El monto debe ser un valor positivo.", 'error');
+                return;
+            }
+
+            const newRecord = {
+                clientName: clientName,
+                amount: amount,
+                accountNumber: accountNumber
+            };
+
+            financialRecords.push(newRecord);
+            renderFinancialRecords();
+            showMessage(financialDataMessage, `Dato financiero para '${clientName}' guardado con éxito.`, 'success');
+            addAuditLog(`Dato financiero guardado para cliente: ${clientName} por ${dashboardUsername.textContent}`, 'info');
+
+            // Clear form fields
+            financialClientNameInput.value = '';
+            financialAmountInput.value = '';
+            financialAccountNumberInput.value = '';
+            console.log(`[SafeData - Log] Nuevo dato financiero: ${JSON.stringify(newRecord)}`);
+        }
+
+        function toggleFinancialDataEntrySection() {
+            financialDataEntrySection.classList.toggle('hidden');
+            if (!financialDataEntrySection.classList.contains('hidden')) {
+                // Hide other sections
+                userManagementSection.classList.add('hidden');
+                auditLogsSection.classList.add('hidden');
+                sensitiveDataSection.classList.add('hidden');
+                clientProfileDetailsSection.classList.add('hidden'); // Hide client section
+
+                renderFinancialRecords(); // Load existing records
+                hideMessage(financialDataMessage);
+                console.log(`[SafeData - Log] ${dashboardUsername.textContent} accedió a la sección de ingreso de datos financieros.`);
+                addAuditLog(`Acceso a sección de ingreso de datos financieros por ${dashboardUsername.textContent}`, 'info');
+            }
+        }
+
+        // --- Client Profile Details Functions ---
+        function toggleClientProfileDetailsSection() {
+            clientProfileDetailsSection.classList.toggle('hidden');
+            if (!clientProfileDetailsSection.classList.contains('hidden')) {
+                // Hide other sections
+                userManagementSection.classList.add('hidden');
+                auditLogsSection.classList.add('hidden');
+                sensitiveDataSection.classList.add('hidden');
+                financialDataEntrySection.classList.add('hidden');
+
+                hideMessage(clientProfileMessage);
+                console.log(`[SafeData - Log] ${dashboardUsername.textContent} accedió a la sección de detalles de perfil.`);
+                addAuditLog(`Acceso a detalles de perfil por ${dashboardUsername.textContent}`, 'info');
+            }
+        }
+
+
+        // --- Event Listeners ---
+        adminLoginBtn.addEventListener('click', () => setLoginType('admin'));
+        clientLoginBtn.addEventListener('click', () => setLoginType('client'));
+        logoutBtn.addEventListener('click', showLogin);
+
+        loginSubmitBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const mfaCode = mfaCodeInput.value.trim();
+
+            const user = usersData.find(u => u.username === username);
+
+            hideMessage(loginMessage);
+
+            if (!user) {
+                showMessage(loginMessage, "Credenciales incorrectas. Intente de nuevo.", 'error');
+                console.warn(`[SafeData - Log] Intento de login fallido para usuario: ${username} (Usuario no encontrado)`);
+                addAuditLog(`Intento de login fallido: ${username} (Usuario no encontrado)`, 'error');
+                return;
+            }
+
+            if (password !== user.password) {
+                showMessage(loginMessage, "Credenciales incorrectas. Intente de nuevo.", 'error');
+                console.warn(`[SafeData - Log] Intento de login fallido para usuario: ${username} (Contraseña incorrecta)`);
+                addAuditLog(`Intento de login fallido: ${username} (Contraseña incorrecta)`, 'error');
+                return;
+            }
+
+            if (user.mfa_required) {
+                if (!requiresMFA) {
+                    requiresMFA = true;
+                    mfaSection.classList.remove('hidden');
+                    showMessage(loginMessage, "Ingrese su código MFA.", 'success');
+                    console.log(`[SafeData - Log] MFA requerido para usuario: ${username}`);
+                    return;
+                } else {
+                    if (!mfaCode) {
+                        showMessage(loginMessage, "Por favor, ingrese su código MFA.", 'error');
+                        return;
+                    }
+                    if (mfaCode !== user.mfa_secret) {
+                        showMessage(loginMessage, "Código MFA incorrecto.", 'error');
+                        console.warn(`[SafeData - Log] Código MFA incorrecto para usuario: ${username}`);
+                        addAuditLog(`Código MFA incorrecto para usuario: ${username}`, 'error');
+                        return;
+                    }
+                }
+            }
+
+            isAuthenticated = true;
+            showMessage(loginMessage, "¡Inicio de sesión exitoso!", 'success');
+            setTimeout(() => showDashboard(user.role, username), 500);
+        });
+
+        manageUsersBtn.addEventListener('click', toggleUserManagementSection);
+        addUserBtn.addEventListener('click', addUser);
+        newUserMfaCheckbox.addEventListener('change', () => {
+            if (newUserMfaCheckbox.checked) {
+                newUserMfaSecretInput.classList.remove('hidden');
+            } else {
+                newUserMfaSecretInput.classList.add('hidden');
+                newUserMfaSecretInput.value = '';
+            }
+        });
+
+        viewAuditLogsBtn.addEventListener('click', toggleAuditLogsSection);
+        clearLogsBtn.addEventListener('click', clearAuditLogs);
+
+        accessSensitiveDataBtn.addEventListener('click', toggleSensitiveDataSection);
+        closeSensitiveDataBtn.addEventListener('click', toggleSensitiveDataSection);
+
+        enterFinancialDataBtn.addEventListener('click', toggleFinancialDataEntrySection);
+        saveFinancialDataBtn.addEventListener('click', addFinancialRecord);
+        closeFinancialDataEntryBtn.addEventListener('click', toggleFinancialDataEntrySection);
+
+        viewProfileDetailsBtn.addEventListener('click', toggleClientProfileDetailsSection);
+        closeProfileDetailsBtn.addEventListener('click', toggleClientProfileDetailsSection);
+
+
+        // Initialize
+        setLoginType('admin');
+    </script>
+</body>
+</html>
